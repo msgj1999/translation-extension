@@ -1,0 +1,7 @@
+target/
+*.class
+.idea/
+*.iml
+
+# Credenciais do Google Cloud
+src/main/resources/google-credentials.json
