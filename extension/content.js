@@ -244,13 +244,14 @@ function showLoading(left, top, width, height) {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.9);
-    border: 2px solid #6c5ce7;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(30, 25, 50, 0.7);
     border-radius: 4px;
     z-index: 1000001;
     font-family: Arial, sans-serif;
     font-size: 14px;
-    color: #6c5ce7;
+    color: #f0edff;
     font-weight: bold;
   `;
   div.textContent = "Traduzindo...";
@@ -266,70 +267,57 @@ function showTranslation(left, top, width, height, text) {
     left: ${left}px;
     top: ${top}px;
     width: ${width}px;
-    min-height: ${height}px;
-    background: white;
-    border: 2px solid #2d3436;
+    height: ${height}px;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    background: rgba(30, 25, 50, 0.7);
     border-radius: 4px;
     z-index: 1000001;
     font-family: Arial, sans-serif;
-    padding: 8px;
-    box-sizing: border-box;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-  `;
-
-  // Botão de fechar (X)
-  const closeBtn = document.createElement("button");
-  closeBtn.textContent = "✕";
-  closeBtn.style.cssText = `
-    position: absolute;
-    top: 2px;
-    right: 4px;
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: #e74c3c;
-    font-weight: bold;
-    padding: 2px 6px;
-    line-height: 1;
-  `;
-  closeBtn.addEventListener("click", () => container.remove());
-
-  // Texto traduzido
-  const textDiv = document.createElement("div");
-  textDiv.style.cssText = `
-    flex: 1;
     display: flex;
     align-items: center;
     justify-content: center;
     text-align: center;
-    font-size: 13px;
-    line-height: 1.4;
-    color: #2d3436;
-    padding: 4px;
-    padding-right: 20px;
+    cursor: pointer;
+    transition: opacity 0.3s ease;
+    padding: 6px;
+    box-sizing: border-box;
+  `;
+
+  // Texto traduzido com auto-ajuste de tamanho
+  const textDiv = document.createElement("div");
+  textDiv.style.cssText = `
+    color: #f0edff;
+    font-weight: 600;
+    line-height: 1.35;
     word-wrap: break-word;
     overflow-wrap: break-word;
+    max-width: 100%;
+    max-height: 100%;
+    overflow: hidden;
   `;
   textDiv.textContent = text;
 
-  container.appendChild(closeBtn);
   container.appendChild(textDiv);
   document.body.appendChild(container);
 
-  // Fecha ao clicar fora
-  const outsideClickHandler = (e) => {
-    if (!container.contains(e.target)) {
-      container.remove();
-      document.removeEventListener("click", outsideClickHandler);
-    }
-  };
-  // Pequeno delay para não fechar imediatamente
-  setTimeout(() => {
-    document.addEventListener("click", outsideClickHandler);
-  }, 200);
+  // Auto-ajuste: reduz a fonte até o texto caber na área
+  let fontSize = Math.min(32, Math.max(12, height * 0.25));
+  textDiv.style.fontSize = fontSize + "px";
+
+  while (
+      (textDiv.scrollHeight > height - 12 || textDiv.scrollWidth > width - 12) &&
+      fontSize > 8
+      ) {
+    fontSize -= 1;
+    textDiv.style.fontSize = fontSize + "px";
+  }
+
+  // Clique simples para fechar com fade-out
+  container.addEventListener("click", () => {
+    container.style.opacity = "0";
+    setTimeout(() => container.remove(), 300);
+  });
 }
 
 function showError(left, top, message) {
